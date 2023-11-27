@@ -32,7 +32,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:gravity="start"
-            android:text="반갑습니다, oo님 😊 >"
+            android:text="반갑습니다, oo님 😊"
             android:textColor="@color/black"
             android:textSize="17dp"
             app:layout_constraintBottom_toBottomOf="@+id/profile_image"
@@ -76,18 +76,18 @@
             android:id="@+id/record_container"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="@id/favorite_song_container"
+            app:layout_constraintEnd_toStartOf="@+id/setting_container"
             app:layout_constraintStart_toEndOf="@id/favorite_song_container"
-            app:layout_constraintEnd_toStartOf="@id/progress_container">
+            app:layout_constraintTop_toTopOf="@id/favorite_song_container">
 
             <ImageView
-                android:layout_marginTop="10dp"
                 android:id="@+id/record"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
+                android:layout_marginTop="10dp"
                 android:src="@drawable/microphone"
-                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
@@ -103,54 +103,23 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/progress_container"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="@id/favorite_song_container"
-            app:layout_constraintStart_toEndOf="@id/record_container"
-            app:layout_constraintEnd_toStartOf="@id/setting_container">
-
-            <ImageView
-                android:layout_marginTop="10dp"
-                android:id="@+id/progress"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:src="@drawable/loading_bar"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="진행상황"
-                android:textColor="@color/black"
-                android:textSize="17dp"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="@id/progress"
-                app:layout_constraintStart_toStartOf="@id/progress"
-                app:layout_constraintTop_toBottomOf="@id/progress" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/setting_container"
             android:layout_width="0dp"
-            app:layout_constraintStart_toEndOf="@id/progress_container"
-            app:layout_constraintEnd_toEndOf="parent"
             android:layout_height="wrap_content"
+            app:layout_constraintStart_toEndOf="@+id/record_container"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/favorite_song_container">
 
 
             <ImageView
                 android:id="@+id/setting"
-                android:layout_marginTop="10dp"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
+                android:layout_marginTop="10dp"
                 android:src="@drawable/cogwheel"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"/>
+                app:layout_constraintTop_toTopOf="parent" />
 
 
             <TextView
