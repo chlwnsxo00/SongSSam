@@ -41,7 +41,7 @@ class HomeFragment : Fragment() ,generateInterface{
     private var generatedItemUrlPair = mutableListOf<Pair<Long, String>>()
     private var sampleVoiceList = mutableListOf<Voice>()
     private lateinit var songAdapter: GenerateAIAdapter
-    private var voiceId: Long = 1
+    private var voiceId: Long = 3
 
     private val mainActivity: MainActivity by lazy {
         context as MainActivity
@@ -89,6 +89,8 @@ class HomeFragment : Fragment() ,generateInterface{
                 }
                 Log.d("generatedItemList", "로그인 연결 성공")
                 try {
+                    generatedItemList.clear()
+                    generatedItemUrlPair.clear()
                     response.body()?.all {
                         generatedItemList.add(it.song)
                         generatedItemUrlPair.add(Pair(it.song.songID, it.generatedUrl))
