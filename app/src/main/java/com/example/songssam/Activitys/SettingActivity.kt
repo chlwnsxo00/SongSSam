@@ -1,8 +1,10 @@
 package com.example.songssam.Activitys
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.MenuItem
 import androidx.appcompat.app.ActionBar
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.example.songssam.R
@@ -29,6 +31,16 @@ class SettingActivity : AppCompatActivity() {
         val actionBar: ActionBar? = supportActionBar //앱바 제어를 위해 툴바 액세스
         actionBar!!.setDisplayHomeAsUpEnabled(true) // 앱바에 뒤로가기 버튼 만들기
         actionBar?.setHomeAsUpIndicator(R.drawable.arrow_back) // 뒤로가기 버튼 색상 설정
+    }
+    @SuppressLint("NonConstantResourceId")
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.getItemId()) {
+            android.R.id.home -> {
+                finish()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     private fun initDeleteAccountClick() {

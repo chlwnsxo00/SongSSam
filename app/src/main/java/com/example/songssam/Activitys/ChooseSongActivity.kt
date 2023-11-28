@@ -62,7 +62,6 @@ class ChooseSongActivity : AppCompatActivity(), ItemAdapter.SelectionChangeListe
                 finish()
                 true
             }
-
             else -> super.onOptionsItemSelected(item)
         }
     }
