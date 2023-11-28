@@ -323,6 +323,7 @@ class HomeFragment : Fragment() ,generateInterface{
                 position: Int,
                 id: Long
             ) {
+                stopMediaPlayer()
                 val num = sampleVoiceList.find {
                     it.name == dataArray[position]
                 }!!.id
