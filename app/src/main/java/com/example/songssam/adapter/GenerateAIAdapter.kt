@@ -53,6 +53,7 @@ class GenerateAIAdapter(
         holder.artist.text = item.artist
         holder.title.text = item.title
         Glide.with(holder.itemView).load(item.coverImage).into(holder.coverImage)
+
         if (selectedItem == null) {
             if (generatedItemList.contains(item)) {
                 holder.touchImage.setImageResource(R.drawable.hear)
@@ -73,6 +74,14 @@ class GenerateAIAdapter(
             } else if (generatedItemList.contains(item)) {
                 selectedItem = if (selectedItem != item) {
                     generateInterface.stopMediaPlayer()
+                    selectedItem?.let {
+                        // 기존에 선택된 아이템을 선택 해제
+                        val index = itemlist.indexOf(it)
+                        if (index != RecyclerView.NO_POSITION) {
+                            notifyItemChanged(index)
+                        }
+                    }
+                    holder.touchImage.setImageResource(R.drawable.hearoff)
                     val url = generatedItemUrlPair.first { it.first == item.songID }.second
                     generateInterface.playGeneratedUrl(url)
                     item
