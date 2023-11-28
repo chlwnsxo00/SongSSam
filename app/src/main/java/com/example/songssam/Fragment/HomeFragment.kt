@@ -176,6 +176,56 @@ class HomeFragment : Fragment() ,generateInterface{
         })
     }
 
+    private fun getRefreshedCompletedList() {
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://songssam.site:8443")
+            .addConverterFactory(GsonConverterFactory.create())
+            .client(
+                OkHttpClient.Builder()
+                    .readTimeout(
+                        30,
+                        TimeUnit.SECONDS
+                    ) // Adjust the timeout as needed
+                    .connectTimeout(30, TimeUnit.SECONDS)
+                    .build()
+            )
+            .build()
+        val apiService = retrofit.create(songssamAPI::class.java)
+        val call = apiService.getCompletedList()
+        call.enqueue(object : Callback<List<chartjsonItems>> {
+            override fun onResponse(
+                call: Call<List<chartjsonItems>>,
+                response: Response<List<chartjsonItems>>
+            ) {
+                if (response.isSuccessful.not()) {
+                    Toast.makeText(
+                        mainActivity,
+                        "서버가 닫혀있습니다!",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    Log.d("itemList", "연결 실패")
+                    return
+                }
+                Log.d("itemList", "로그인 연결 성공")
+                try {
+                    itemList = response.body()?.toMutableList() ?: mutableListOf()
+                    Log.d("itemList", itemList.toString())
+                    getGeneratedSongList(voiceId)
+                } catch (e: Exception) {
+                }
+            }
+
+            override fun onFailure(call: Call<List<chartjsonItems>>, t: Throwable) {
+                Log.d("itemList", t.stackTraceToString())
+                Toast.makeText(
+                    mainActivity,
+                    "네트워크 오류와 같은 이유로 오류 발생!",
+                    Toast.LENGTH_LONG
+                ).show()
+                // 네트워크 오류 등 호출 실패 시 처리
+            }
+        })
+    }
     private fun getSampleVoice() {
         val retrofit = Retrofit.Builder()
             .baseUrl("https://songssam.site:8443")
@@ -210,7 +260,6 @@ class HomeFragment : Fragment() ,generateInterface{
                 try {
                     sampleVoiceList = response.body()?.toMutableList() ?: mutableListOf()
                     Log.d("voice", sampleVoiceList.toString())
-                    getGeneratedSongList(sampleVoiceList.first().id)
                     initSpinner()
                 } catch (e: Exception) {
                     Log.d("voice", e.stackTraceToString())
@@ -277,16 +326,18 @@ class HomeFragment : Fragment() ,generateInterface{
                 val num = sampleVoiceList.find {
                     it.name == dataArray[position]
                 }!!.id
-                getGeneratedSongList(num)
                 voiceId = num
-                adapter.notifyDataSetChanged()
-                initRecyclerView()
+                getRefreshedCompletedList()
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
+                voiceId = sampleVoiceList.first().id
+                getGeneratedSongList(voiceId)
             }
         }
     }
+
+
 
     override fun successRequest() {
         view?.post {
@@ -358,7 +409,7 @@ class HomeFragment : Fragment() ,generateInterface{
     private fun initRefreshLayout() {
         binding.refreshLayout.setPtrHandler(object : PtrDefaultHandler() {
             override fun onRefreshBegin(frame: PtrFrameLayout) {
-                getCompletedList()
+                getRefreshedCompletedList()
                 // 예를 들어, 데이터를 다시 로드하거나 업데이트할 수 있습니다.
                 binding.refreshLayout.postDelayed({
                     // 리프레시 완료 후 호출

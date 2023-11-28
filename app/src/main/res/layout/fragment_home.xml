@@ -113,10 +113,11 @@
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
             </androidx.core.widget.NestedScrollView>
+
         </in.srain.cube.views.ptr.PtrClassicFrameLayout>
 
-
     </androidx.constraintlayout.widget.ConstraintLayout>
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab"
         android:layout_width="wrap_content"
@@ -124,6 +125,6 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="30dp"
         android:backgroundTint="@color/splash_blue"
-        app:srcCompat="@drawable/upward_arrow" />
-
+        app:srcCompat="@drawable/upward_arrow"
+        app:tint="@android:color/white"/>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
