@@ -1,5 +1,6 @@
 package com.example.songssam.Fragment
 
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -42,6 +43,7 @@ class HomeFragment : Fragment() ,generateInterface{
     private var sampleVoiceList = mutableListOf<Voice>()
     private lateinit var songAdapter: GenerateAIAdapter
     private var voiceId: Long = 3
+    private var mediaPlayer: MediaPlayer? = null
 
     private val mainActivity: MainActivity by lazy {
         context as MainActivity
@@ -299,4 +301,47 @@ class HomeFragment : Fragment() ,generateInterface{
             ).show()
         }
     }
+
+    override fun playGeneratedUrl(generatedUrl: String) {
+        try {
+            stopMediaPlayer()
+            if (mediaPlayer == null) {
+                mediaPlayer = MediaPlayer().apply {
+                    val url = "https://songssam.site:8443/song/download?url=" + generatedUrl
+                    setDataSource(url)
+                    setOnPreparedListener {
+                        it.start()
+                    }
+                    setOnErrorListener { _, _, _ ->
+                        false
+                    }
+                    prepareAsync()
+                }
+            } else {
+                if (mediaPlayer?.isPlaying == true) {
+                    stopMediaPlayer()
+                } else {
+                    mediaPlayer?.start()
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("MediaPlayer", "Error playing audio: ${e.message}")
+        }
+    }
+
+    override fun stopMediaPlayer() {
+        mediaPlayer?.let {
+            if (it.isPlaying) {
+                it.stop()
+            }
+            it.release()
+        }
+        mediaPlayer = null
+    }
+
+    override fun onPause() {
+        super.onPause()
+        stopMediaPlayer()
+    }
+
 }

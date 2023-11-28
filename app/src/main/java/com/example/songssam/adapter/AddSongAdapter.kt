@@ -19,6 +19,8 @@ interface AddSongClick {
     fun isCompleted(title: String, artist: String,cover:String, songId: Long, instUrl: String)
     fun isNull(songId: Long)
     fun isProcessing()
+    fun playOriginUrl(originUrl:String)
+    fun stopMediaPlayer()
 }
 
 class AddSongAdapter(
@@ -82,52 +84,16 @@ class AddSongAdapter(
         holder.touch.setOnLongClickListener {
             if (item.status != "NONE") {
                 Log.d("long", "playOrigin")
-                playOriginUrl(item.originUrl!!)
+                addSongClick.playOriginUrl(item.originUrl!!)
             }
             true
         }
         holder.touch.setOnTouchListener { view, motionEvent ->
             if (motionEvent.action == MotionEvent.ACTION_UP && mediaPlayer?.isPlaying == true) {
-                stopMediaPlayer()
+                addSongClick.stopMediaPlayer()
             }
             false
         }
-    }
-
-    private fun playOriginUrl(originUrl: String) {
-        try {
-            if (mediaPlayer == null) {
-                mediaPlayer = MediaPlayer().apply {
-                    val url = "https://songssam.site:8443/song/download?url=" + originUrl
-                    setDataSource(url)
-                    setOnPreparedListener {
-                        it.start()
-                    }
-                    setOnErrorListener { _, _, _ ->
-                        false
-                    }
-                    prepareAsync()
-                }
-            } else {
-                if (mediaPlayer?.isPlaying == true) {
-                    mediaPlayer?.pause()
-                } else {
-                    mediaPlayer?.start()
-                }
-            }
-        } catch (e: Exception) {
-            Log.e("MediaPlayer", "Error playing audio: ${e.message}")
-        }
-    }
-
-    private fun stopMediaPlayer() {
-        mediaPlayer?.let {
-            if (it.isPlaying) {
-                it.stop()
-            }
-            it.release()
-        }
-        mediaPlayer = null
     }
 
     override fun getItemCount() = itemlist.size

@@ -3,6 +3,7 @@ package com.example.songssam.Fragment
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Color
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -53,6 +54,7 @@ class AIFragment : Fragment(), AddSongClick {
     private var uploadSongId: Long = 0
     private val REQUEST_CODE_PICK_FILE = 101
 
+    private var mediaPlayer: MediaPlayer? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -379,7 +381,7 @@ class AIFragment : Fragment(), AddSongClick {
     }
 
     override fun isProcessing() {
-        Toast.makeText(mainActivity,"현재 전처리 중에 있습니다!\n (평균 소요 시간: 3분)",Toast.LENGTH_SHORT).show()
+        Toast.makeText(mainActivity, "현재 전처리 중에 있습니다!\n (평균 소요 시간: 3분)", Toast.LENGTH_SHORT).show()
     }
 
     override fun isUpLoaded(songId: Long) {
@@ -434,13 +436,19 @@ class AIFragment : Fragment(), AddSongClick {
         })
     }
 
-    override fun isCompleted(title: String, artist: String,cover:String, songId: Long, instUrl: String) {
+    override fun isCompleted(
+        title: String,
+        artist: String,
+        cover: String,
+        songId: Long,
+        instUrl: String
+    ) {
         val intent = Intent(activity, RecordingActivity::class.java)
-        intent.putExtra("title",title)
-        intent.putExtra("artist",artist)
-        intent.putExtra("cover",cover)
-        intent.putExtra("songId",songId)
-        intent.putExtra("instUrl",instUrl)
+        intent.putExtra("title", title)
+        intent.putExtra("artist", artist)
+        intent.putExtra("cover", cover)
+        intent.putExtra("songId", songId)
+        intent.putExtra("instUrl", instUrl)
         startActivity(intent)
     }
 
@@ -463,8 +471,12 @@ class AIFragment : Fragment(), AddSongClick {
                 val contentResolver = mainActivity.applicationContext.contentResolver
                 val inputStream = contentResolver.openInputStream(uri)
                 val songIdRequestBody =
-                    RequestBody.create("text/plain".toMediaTypeOrNull(), uploadSongId.toString()) // Convert songId to RequestBody
-                val fileRequestBody = inputStream?.readBytes()?.toRequestBody("audio/mpeg".toMediaTypeOrNull())
+                    RequestBody.create(
+                        "text/plain".toMediaTypeOrNull(),
+                        uploadSongId.toString()
+                    ) // Convert songId to RequestBody
+                val fileRequestBody =
+                    inputStream?.readBytes()?.toRequestBody("audio/mpeg".toMediaTypeOrNull())
                 val filePart = fileRequestBody?.let {
                     MultipartBody.Part.createFormData("file", "$uploadSongId.mp3", it)
                 }
@@ -491,6 +503,7 @@ class AIFragment : Fragment(), AddSongClick {
                             Toast.LENGTH_LONG
                         ).show()
                     }
+
                     override fun onResponse(call: Call<Void>, response: Response<Void>) {
                         if (response.isSuccessful) {
                             Toast.makeText(
@@ -519,4 +532,47 @@ class AIFragment : Fragment(), AddSongClick {
     }
 
 
+    override fun playOriginUrl(originUrl: String) {
+        try {
+            stopMediaPlayer()
+
+            if (mediaPlayer == null) {
+                mediaPlayer = MediaPlayer().apply {
+                    val url = "https://songssam.site:8443/song/download?url=" + originUrl
+                    setDataSource(url)
+                    setOnPreparedListener {
+                        it.start()
+                    }
+                    setOnErrorListener { _, _, _ ->
+                        false
+                    }
+                    prepareAsync()
+                }
+            } else {
+                if (mediaPlayer?.isPlaying == true) {
+                    mediaPlayer?.pause()
+                } else {
+                    mediaPlayer?.start()
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("MediaPlayer", "Error playing audio: ${e.message}")
+        }
+    }
+
+
+    override fun onPause() {
+        super.onPause()
+        stopMediaPlayer()
+    }
+
+    override fun stopMediaPlayer() {
+        mediaPlayer?.let {
+            if (it.isPlaying) {
+                it.stop()
+            }
+            it.release()
+        }
+        mediaPlayer = null
+    }
 }

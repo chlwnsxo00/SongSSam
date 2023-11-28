@@ -3,6 +3,7 @@ package com.example.songssam.adapter
 import android.media.MediaPlayer
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -17,10 +18,14 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 
-interface generateInterface{
+interface generateInterface {
     fun successRequest()
     fun failRequest()
+
+    fun playGeneratedUrl(generatedUrl: String)
+    fun stopMediaPlayer()
 }
+
 class GenerateAIAdapter(
     private var itemlist: MutableList<chartjsonItems>,
     private var generatedItemList: MutableList<chartjsonItems>,
@@ -30,9 +35,8 @@ class GenerateAIAdapter(
 ) :
     RecyclerView.Adapter<GenerateAIAdapter.TaskViewHolder>() {
 
-    private var mediaPlayer: MediaPlayer? = null
 
-
+    private var selectedItem: chartjsonItems? = null
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): TaskViewHolder {
         val view = LayoutInflater.from(viewGroup.context)
             .inflate(R.layout.generate_cover_item, viewGroup, false)
@@ -49,62 +53,45 @@ class GenerateAIAdapter(
         holder.artist.text = item.artist
         holder.title.text = item.title
         Glide.with(holder.itemView).load(item.coverImage).into(holder.coverImage)
-        if (generatedItemList.contains(item)) {
-            holder.touchImage.setImageResource(R.drawable.hear)
+        if (selectedItem == null) {
+            if (generatedItemList.contains(item)) {
+                holder.touchImage.setImageResource(R.drawable.hear)
+            }
+        } else {
+            if (generatedItemList.contains(item) && selectedItem != item) {
+                holder.touchImage.setImageResource(R.drawable.hear)
+            } else if (generatedItemList.contains(item) && selectedItem == item) {
+                holder.touchImage.setImageResource(R.drawable.hearoff)
+            }
         }
         holder.touch.setOnClickListener {
-            if (generatedItemList.contains(item)) {
+            if (selectedItem == null && generatedItemList.contains(item)) {
                 val url = generatedItemUrlPair.first { it.first == item.songID }.second
-                playGeneratedUrl(url)
-            } else {
-                sendPostRequest(makeJson(voiceId,item.songID))
-            }
-        }
-    }
-
-    private fun playGeneratedUrl(generatedUrl: String) {
-        try {
-            if (mediaPlayer == null) {
-                mediaPlayer = MediaPlayer().apply {
-                    val url = "https://songssam.site:8443/song/download?url=" + generatedUrl
-                    setDataSource(url)
-                    setOnPreparedListener {
-                        it.start()
-                    }
-                    setOnErrorListener { _, _, _ ->
-                        false
-                    }
-                    prepareAsync()
-                }
-            } else {
-                if (mediaPlayer?.isPlaying == true) {
-                    stopMediaPlayer()
+                generateInterface.playGeneratedUrl(url)
+                selectedItem = item
+            } else if (generatedItemList.contains(item)) {
+                selectedItem = if (selectedItem != item) {
+                    generateInterface.stopMediaPlayer()
+                    val url = generatedItemUrlPair.first { it.first == item.songID }.second
+                    generateInterface.playGeneratedUrl(url)
+                    item
                 } else {
-                    mediaPlayer?.start()
+                    generateInterface.stopMediaPlayer()
+                    null
                 }
+            } else {
+                sendPostRequest(makeJson(voiceId, item.songID))
             }
-        } catch (e: Exception) {
-            Log.e("MediaPlayer", "Error playing audio: ${e.message}")
         }
     }
-
-    private fun stopMediaPlayer() {
-        mediaPlayer?.let {
-            if (it.isPlaying) {
-                it.stop()
-            }
-            it.release()
-        }
-        mediaPlayer = null
-    }
-
     // JSON 데이터 준비
 
-    private fun makeJson(voiceId:Long,songId:Long):String{
+    private fun makeJson(voiceId: Long, songId: Long): String {
         return "{\"targetVoiceId\":\"$voiceId\", \"targetSongId\":\"$songId\"}"
     }
+
     fun sendPostRequest(jsonData: String) {
-        Thread{
+        Thread {
             val client = OkHttpClient()
 
             val mediaType = "application/json; charset=UTF-8".toMediaType()
