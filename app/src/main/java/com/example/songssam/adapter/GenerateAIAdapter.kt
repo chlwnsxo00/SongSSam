@@ -66,6 +66,7 @@ class GenerateAIAdapter(
         }
         holder.touch.setOnClickListener {
             if (selectedItem == null && generatedItemList.contains(item)) {
+                holder.touchImage.setImageResource(R.drawable.hearoff)
                 val url = generatedItemUrlPair.first { it.first == item.songID }.second
                 generateInterface.playGeneratedUrl(url)
                 selectedItem = item
@@ -76,6 +77,7 @@ class GenerateAIAdapter(
                     generateInterface.playGeneratedUrl(url)
                     item
                 } else {
+                    holder.touchImage.setImageResource(R.drawable.hear)
                     generateInterface.stopMediaPlayer()
                     null
                 }
