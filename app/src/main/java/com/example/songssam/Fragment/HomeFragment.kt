@@ -38,7 +38,7 @@ import java.util.concurrent.TimeUnit
 /**
  * A simple [Fragment] subclass.
  */
-class HomeFragment : Fragment() ,generateInterface{
+class HomeFragment : Fragment(), generateInterface {
     lateinit var binding: FragmentHomeBinding
     private var itemList = mutableListOf<chartjsonItems>()
     private var generatedItemList = mutableListOf<chartjsonItems>()
@@ -51,7 +51,6 @@ class HomeFragment : Fragment() ,generateInterface{
     private val mainActivity: MainActivity by lazy {
         context as MainActivity
     }
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -103,7 +102,7 @@ class HomeFragment : Fragment() ,generateInterface{
                         generatedItemUrlPair.add(Pair(it.song.songID, it.generatedUrl))
                         true
                     }
-                    Log.d("done","done")
+                    Log.d("done", "done")
                     Thread(Runnable {
                         mainActivity.runOnUiThread {
                             initRecyclerView()
@@ -226,6 +225,7 @@ class HomeFragment : Fragment() ,generateInterface{
             }
         })
     }
+
     private fun getSampleVoice() {
         val retrofit = Retrofit.Builder()
             .baseUrl("https://songssam.site:8443")
@@ -280,12 +280,11 @@ class HomeFragment : Fragment() ,generateInterface{
 
     private fun initRecyclerView() {
         // generatedItemList에 포함된 아이템을 앞으로 이동시키기
-        val itemsInGeneratedList = itemList.filter { it in generatedItemList }
         val itemsNotInGeneratedList = itemList.filterNot { it in generatedItemList }
 
         // 앞으로 이동시킨 아이템과 그렇지 않은 아이템을 합쳐서 새로운 리스트 생성
         val reorderedItemList = mutableListOf<chartjsonItems>().apply {
-            addAll(itemsInGeneratedList)
+            addAll(generatedItemList)
             addAll(itemsNotInGeneratedList)
         }
 
@@ -338,8 +337,6 @@ class HomeFragment : Fragment() ,generateInterface{
         }
     }
 
-
-
     override fun successRequest() {
         view?.post {
             Toast.makeText(
@@ -349,7 +346,8 @@ class HomeFragment : Fragment() ,generateInterface{
             ).show()
         }
     }
-    override fun failRequest(){
+
+    override fun failRequest() {
         view?.post {
             Toast.makeText(
                 requireContext(),
@@ -395,11 +393,11 @@ class HomeFragment : Fragment() ,generateInterface{
         }
         mediaPlayer = null
     }
+
     override fun onPause() {
         super.onPause()
         stopMediaPlayer()
     }
-
 
     private fun initFloatingButton() {
         binding.fab.setOnClickListener {

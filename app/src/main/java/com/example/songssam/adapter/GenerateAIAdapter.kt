@@ -35,7 +35,6 @@ class GenerateAIAdapter(
 ) :
     RecyclerView.Adapter<GenerateAIAdapter.TaskViewHolder>() {
 
-
     private var selectedItem: chartjsonItems? = null
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): TaskViewHolder {
         val view = LayoutInflater.from(viewGroup.context)
